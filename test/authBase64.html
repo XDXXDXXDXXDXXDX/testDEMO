@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="../public/dep/angular-1.6.8/angular.min.js"></script>
+</head>
+<body>
+
+<div  ng-app="view" >
+    <div ng-controller="upload">
+        <h1>点击放大照片来确认或微调身体轮廓。</h1>
+        <div>正面照 <input type="file"  id="fileup" file-model="images" accept=".jpg,.png"  select-file title="imgf"></div>
+        <div>侧面照<input type="file"  id="fileup2" file-model="images2" accept=".jpg,.png"  select-file title="imgs"  ></div>
+        <li ng-repeat="item in thumb">
+            <div> <img ng-src="{{item.imgSrc}}" style="width:5%;" ng-show="item.imgSrc" /></div>
+        </li>
+        <button  ng-click="uploadClick()" value="提 交" >提交图片</button>
+        <button  ng-click="uploadresult()" value="上传" style=" z-index: 2">上传结果</button>
+        <div ng-controller="drawimgf">
+            <div>
+                <canvas id="canvas" width='548' height="958" style="position: absolute;left:0px; z-index: 1"></canvas>
+                <canvas id="canvasimg" width='548' height="958" style="position: absolute;left:0px; z-index: 0"></canvas>
+            </div>
+        </div>
+
+        <div ng-controller="drawimgs">
+            <div>
+                <canvas id="canvas2" width='548' height="958" style="position: absolute;right:0px; z-index: 1"></canvas>
+                <canvas id="canvasimg2" width='548' height="958" style="position: absolute;right:0px; z-index: 0"></canvas>
+            </div>
+        </div>
+    </div>
+    <p>sy001(男)170cm</p>
+</div>
+</body>
+
+<script>
+    var view = angular.module('view', []);
+    view.directive('selectFile',  function() {  //负责选取本地图片并将提取图片base64
+        return{
+            restrict: 'AE',
+            scope: false,
+            template: '<div><input type="button" style="position: relative; width:84px; height: 30px; line-height: 30px;" value="选择照片">' +
+            '<input type="file" style="position: absolute; left:0px; width:84px; height: 30px;opacity: 0;" accept=".jpg,.png"></div>',
+            replace: true,
+            link: function($scope, ele, attrs) {
+                ele.bind('change', function(files) {
+                    $scope.title=attrs.title;
+                    $scope.file = ele[0].children[1].files;
+                    $scope.ID="test";
+                    $scope.gender=1;
+                    $scope.height=170;
+                    $scope.weight=59;
+                    $scope.reader = new FileReader(); //创建一个FileReader接口
+                    if ($scope.file) {
+                        //获取图片（预览图片）
+                        $scope.reader.readAsDataURL($scope.file[0]); //FileReader的方法，把图片转成base64
+                        $scope.reader.onload = function(ev) {
+                            $scope.$apply(function(){
+                                if($scope.title=='imgf'){
+                                    $scope.thumb[0] = {
+                                        imgSrc : ev.target.result  //接收base64，$scope.thumb.imgSrc为图片。
+                                    };
+                                }
+                                if($scope.title=='imgs'){
+                                    $scope.thumb[1] = {
+                                        imgSrc : ev.target.result  //接收base64，$scope.thumb.imgSrc为图片。
+                                    };
+                                }
+                            });
+                        };
+                    }else{
+                        alert('上传图片不能为空!');
+                    }
+                });
+            }}
+    })
+
+    view.controller('upload',function($scope,$http,$filter,Base64,postResponse){  //控制器upload 负责post上传本地图片
+        $scope.thumb=[];
+        $scope.code='testsy';
+        var auth=Base64.encode('13800138006'+':'+'123456');
+        console.log(auth)
+        $scope.uploadClick=function () {
+            var auth=Base64.encode('13800138006'+':'+'123456');
+            console.log(auth)
+            var imgf=$scope.thumb[0].imgSrc.substring(23,  $scope.thumb[0].imgSrc.length);
+            var imgs=$scope.thumb[1].imgSrc.substring(23,  $scope.thumb[1].imgSrc.length);
+            var data =      //以下为像后台提交图片数据
+                {
+                    "ID": $scope.ID,
+                    "gender": $scope.gender,
+                    "height": $scope.height,
+                    "weight": $scope.weight,
+                    "imgF": imgf,
+                    "imgS": imgs
+                }
+            // console.log(JSON.stringify(data))
+            $http({
+                    url:'https://www.tozmart.com/bndsrv/wxmini/web_prof',
+                    method:'POST',
+                    data:data,
+                    headers:{
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json; charset=UTF-8',
+                        Authorization: 'Basic ' + auth
+                    }
+                }
+            ).then(function (result) {  //正确请求成功时处理
+                var jsond= angular.fromJson(result.data.MeasureStr);
+                console.log(jsond)
+                //得到pts_f
+                first_grouping=jsond.pts_f.split(",");
+                pts_length=first_grouping.length;
+                var pts_f=[];
+                for(var i=0;i<first_grouping.length;i++)
+                {
+                    second_grouping= first_grouping[i].split(":");
+                    pts_f[i]= second_grouping;
+                }
+                //得到pts_S
+                first_grouping=jsond.pts_s.split(",");
+                var pts_s=[];
+                for(var i=0;i<first_grouping.length;i++)
+                {
+                    second_grouping= first_grouping[i].split(":");
+                    pts_s[i]= second_grouping;
+                }
+                //得到FL_MP
+                first_grouping=jsond.FL_MP.split(";");
+                FL_MP=  first_grouping[0].split(",");//分割FL_MP
+                //得到FR_MP
+                first_grouping=jsond.FR_MP.split(";");
+                FR_MP=  first_grouping[0].split(",");//分割FR_MP
+                //得到SF_MP
+                first_grouping=jsond.SF_MP.split(";");
+                SF_MP=  first_grouping[0].split(",");//分割SF_MP
+                //得到SB_MP
+                first_grouping=jsond.SB_MP.split(";");
+                SB_MP=  first_grouping[0].split(",");//分割SB_MP
+                //得到FLCOLOR
+                first_grouping=jsond.FLCOLOR.split(",");
+                var FLCOLOR=[];
+                for(var i=0;i<first_grouping.length-1;i++)
+                {
+                    second_grouping=  first_grouping[i].split(":");//分割SB_MP
+                    FLCOLOR[i]=second_grouping;
+                }
+                //得到FRCOLOR
+                first_grouping=jsond.FLCOLOR.split(",");
+                var FRCOLOR=[];
+                for(var i=0;i<first_grouping.length-1;i++)
+                {
+                    second_grouping=  first_grouping[i].split(":");//分割SB_MP
+                    FRCOLOR[i]=second_grouping;
+                }
+                //得到SFCOLOR
+                first_grouping=jsond.SFCOLOR.split(",");
+                var SFCOLOR=[];
+                for(var i=0;i<first_grouping.length-1;i++)
+                {
+                    second_grouping=  first_grouping[i].split(":");//分割SB_MP
+                    SFCOLOR[i]=second_grouping;
+                }
+                //得到SBCOLOR
+                first_grouping=jsond.SBCOLOR.split(",");
+                var SBCOLOR=[];
+                for(var i=0;i<first_grouping.length-1;i++)
+                {
+                    second_grouping=  first_grouping[i].split(":");//分割SB_MP
+                    SBCOLOR[i]=second_grouping;
+                }
+
+                //得到Addinfo
+                var jsond_parse=JSON.parse(result.data['MeasureStr']);
+                var addInfo=jsond_parse['AddInfo'];
+
+                postResponse.data= {
+                    WarnInfo: result.data.WarnInfo,
+                    ErrNum: result.data.ErrNum,
+                    WarnNum:  result.data.ErrNum,
+                    ErrInfo:  result.data.ErrNum,
+                    pts_f:pts_f,
+                    pts_s:pts_s,
+                    pts_length:pts_length,
+                    url_f:jsond.url_f,
+                    url_s:jsond.url_s,
+                    FL_MP:FL_MP,
+                    FR_MP:FR_MP,
+                    SF_MP:SF_MP,
+                    SB_MP:SB_MP,
+                    FLCOLOR:FLCOLOR,
+                    FRCOLOR:FRCOLOR,
+                    SFCOLOR:SFCOLOR,
+                    SBCOLOR:SBCOLOR,
+                    AddInfo:addInfo,
+                };
+                // 广播图片的url，使其能延后加载
+                $scope.$broadcast('url_f', { url_f: postResponse.data.url_f });
+                $scope.$broadcast('url_s', { url_s: postResponse.data.url_s });
+
+            }).catch(function (result) { //捕捉错误处理
+                console.log("fail");
+            });
+
+        };
+
+        $scope.uploadresult=function () {
+            var auth=Base64.encode('admin'+':'+'tozmartdev2016');
+            var pts_f_array=[];
+            var pts_s_array=[];
+            for(var i=0;i<parseInt(postResponse.data.pts_length);i++){
+                pts_f_array.push(postResponse.data.pts_f[i][0]+':'+postResponse.data.pts_f[i][1]+':'+postResponse.data.pts_f[i][2]+':'+postResponse.data.pts_f[i][3]);
+                pts_s_array.push(postResponse.data.pts_s[i][0]+':'+postResponse.data.pts_s[i][1]+':'+postResponse.data.pts_s[i][2]+':'+postResponse.data.pts_s[i][3]);
+            }
+            var pts_f_new=pts_f_array.join(",");
+            var pts_s_new=pts_s_array.join(",");
+
+            var data =   //以下为像后台提交调整之后的图片数据
+                {
+                    "code": $scope.code,
+                    "pts_s": pts_s_new,
+                    "pts_f": pts_f_new,
+                    "gender": $scope.gender,
+                    "height": $scope.height,
+                    "weight": $scope.weight,
+                    "AddInfo":postResponse.data.AddInfo
+                }
+            $http({
+                    url:'https://www.tozmart.com/bndsrv/wxmini/modelling',
+                    method:'POST',
+                    data:data,
+                    headers:{
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json; charset=UTF-8',
+                        Authorization: 'Basic ' + auth
+                    }
+                }
+            ).then(function (result) {  //正确请求成功时处理
+                console.log("success");
+            }).catch(function (result) { //捕捉错误处理
+                console.log("fail");
+            });
+        };
+    });
+
+    view.controller('drawimgf',function ($scope,$http,postResponse,Base64) {
+        var img = new Image();
+        $scope.$on('url_f', function (event, args) {
+            img.src=args.url_f;
+
+        });
+        var lineWidth=3;  //线的宽度
+        var circles=[];//保存画布上的特征点
+        var previousSelectedCircle;
+        var isDragging = false;//允许圆被拖动
+        var radius=10;
+        var mSelectedCircleIndex='';
+        var canvasimgf = document.getElementById('canvas');
+        var ctx = canvasimgf.getContext('2d');
+
+        img.onload = function() {
+            canvasimgf.onmousedown = $scope.canvasClick;
+            canvasimgf.onmouseup = $scope.stopDragging;
+            canvasimgf.onmouseout = $scope.stopDragging;
+            canvasimgf.onmousemove = $scope.dragCircle;
+
+            $scope.draw();
+
+        };
+
+        $scope.createcircle=function(x,y){
+            this.x=x;
+            this.y=y;
+            this.isSelected=false;
+        };
+
+        $scope.drawing=function(){
+            ctx.clearRect(0,0,canvasimgf.width,canvasimgf.height);
+            ctx.globalAlpha=1;
+            var isRed=false;
+            var isLeft=true;
+            var i=0;
+            for(var j=postResponse.data.FLCOLOR.length-1;j>=0;j--){
+                for(var indx=0;indx<2;indx++){
+                    end=postResponse.data.FLCOLOR[j][indx];
+                    $scope.drawLine(ctx,i,end,isRed,isLeft);
+                    i=postResponse.data.FLCOLOR[j][indx];
+                    isRed=!isRed;
+                }
+            }
+
+            $scope.drawLine(ctx,i,postResponse.data.pts_length-1,isRed,isLeft);
+            isRed=false;
+            isLeft=false;
+            i=0;
+            for(var j=postResponse.data.FRCOLOR.length-1;j>=0;j--){
+                for(var indx=0;indx<2;indx++){
+                    $scope.drawLine(ctx,i,postResponse.data.FRCOLOR[j][indx],isRed,isLeft);
+                    i=postResponse.data.FRCOLOR[j][indx];
+                    isRed=!isRed;
+                }
+            }
+            $scope.drawLine(ctx,i,postResponse.data.pts_length-1,isRed,isLeft);
+
+            ctx.fillStyle="#000FFF";
+            ctx.globalAlpha=0.5;
+
+            for(var i=0;i<circles.length;i++){
+                var circle = circles[i];
+                ctx.beginPath();
+                ctx.arc(circle.x,circle.y,radius,0,Math.PI*2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+        };
+
+        $scope.canvasClick=function (e) {
+            //取得画布鼠标点击点位置
+            var clickX = e.pageX - canvasimgf.offsetLeft;
+            var clickY = e.pageY - canvasimgf.offsetTop;
+            console.log("canvasimgf.offsetLeft:"+canvasimgf.offsetLeft);
+            console.log("canvasimgf.offsetTop"+canvasimgf.offsetTop);
+            for(var i=circles.length-1; i>=0; i--) {
+                var circle = circles[i];
+                //使用勾股定理计算这个点与圆心之间的距离
+                var distanceFromCenter = Math.sqrt(Math.pow(circle.x - clickX, 2)
+                    + Math.pow(circle.y - clickY, 2))
+                // 判断这个点是否在圆圈中
+                if (distanceFromCenter <= radius) {
+                    // 清除之前选择的圆圈
+                    if (previousSelectedCircle != null) previousSelectedCircle.isSelected = false;
+                    previousSelectedCircle = circle;
+
+                    //选择新圆圈
+                    circle.isSelected = true;
+                    mSelectedCircleIndex=i;
+                    console.log(mSelectedCircleIndex);
+                    // 使圆圈允许拖拽
+                    isDragging = true;
+
+                    //更新显示
+                    $scope.drawing();
+
+                    //停止搜索
+                    return;
+                }
+            }
+
+            ;
+        };
+
+        $scope.stopDragging=function () {
+            isDragging = false;
+        }
+
+        $scope.mSelectedPoint=function (transX,transY,mSelectedCircleIndex) {
+            if(mSelectedCircleIndex<postResponse.data.FL_MP.length) {
+                Movelift=true;
+                Moveright=false;
+                mSelectedPointDownIndex=mSelectedCircleIndex>0?postResponse.data.FL_MP[mSelectedCircleIndex-1]:0;
+                mSelectedPointUpIndex=mSelectedCircleIndex<postResponse.data.FL_MP.length-1?postResponse.data.FL_MP[mSelectedCircleIndex+1]:postResponse.data.pts_length;
+                mSelectedPointIndex=postResponse.data.FL_MP[mSelectedCircleIndex];
+            }
+            else {
+                Movelift=false;
+                Moveright=true;
+                var mSelectedRightIndex= mSelectedCircleIndex-postResponse.data.FL_MP.length;
+                mSelectedPointDownIndex=mSelectedRightIndex>0?postResponse.data.FR_MP[mSelectedRightIndex-1]:0;
+                mSelectedPointUpIndex=mSelectedRightIndex<postResponse.data.FR_MP.length-1?postResponse.data.FR_MP[mSelectedRightIndex+1]:postResponse.data.pts_length;
+                mSelectedPointIndex=postResponse.data.FR_MP[mSelectedRightIndex];
+            }
+
+            for(var i=parseInt(mSelectedPointDownIndex);i<parseInt(mSelectedPointUpIndex);i++) {
+                if(i<mSelectedPointIndex) {
+                    var changeX = transX / ((mSelectedPointIndex - mSelectedPointDownIndex) / 2) * (((mSelectedPointIndex - mSelectedPointDownIndex) / 2) - (mSelectedPointIndex - i) / 2);
+                    var changeY = transY / ((mSelectedPointIndex - mSelectedPointDownIndex) / 2) * (((mSelectedPointIndex - mSelectedPointDownIndex) / 2) - (mSelectedPointIndex - i) / 2);
+
+                    if(Movelift){
+                        postResponse.data.pts_f[i][0]=parseFloat(postResponse.data.pts_f[i][0])+parseFloat(changeX);
+                        postResponse.data.pts_f[i][1]=parseFloat(postResponse.data.pts_f[i][1])+parseFloat(changeY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_f[i][2]=parseFloat( postResponse.data.pts_f[i][2])+parseFloat(changeX);
+                        postResponse.data.pts_f[i][3]=parseFloat(postResponse.data.pts_f[i][3])+parseFloat(changeY);
+                    }
+                }
+                else if(i==mSelectedPointIndex){
+                    if(Movelift){
+                        postResponse.data.pts_f[i][0]=parseFloat(postResponse.data.pts_f[i][0])+parseFloat(transX);
+                        postResponse.data.pts_f[i][1]=parseFloat(postResponse.data.pts_f[i][1])+parseFloat(transY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_f[i][2]=parseFloat( postResponse.data.pts_f[i][2])+parseFloat(transX);
+                        postResponse.data.pts_f[i][3]=parseFloat(postResponse.data.pts_f[i][3])+parseFloat(transY);
+                    }
+                }
+                else{
+                    var changeX = transX / ((mSelectedPointUpIndex-mSelectedPointIndex) / 2) * (((mSelectedPointUpIndex-mSelectedPointIndex) / 2) - (i-mSelectedPointIndex) / 2);
+                    var changeY = transY / ((mSelectedPointUpIndex-mSelectedPointIndex) / 2) * (((mSelectedPointUpIndex-mSelectedPointIndex) / 2) - (i-mSelectedPointIndex) / 2);
+
+                    if(Movelift){
+                        postResponse.data.pts_f[i][0]=parseFloat(postResponse.data.pts_f[i][0])+parseFloat(changeX);
+                        postResponse.data.pts_f[i][1]=parseFloat(postResponse.data.pts_f[i][1])+parseFloat(changeY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_f[i][2]=parseFloat( postResponse.data.pts_f[i][2])+parseFloat(changeX);
+                        postResponse.data.pts_f[i][3]=parseFloat(postResponse.data.pts_f[i][3])+parseFloat(changeY);
+                    }
+                }
+            }
+        };
+
+        $scope.dragCircle=function (e) {
+            Movelift=false;
+            Moveright=false;
+            // 判断圆圈是否开始拖拽
+            if (isDragging == true) {
+                // 判断拖拽对象是否存在
+                if (previousSelectedCircle != null) {
+
+                    // 取得鼠标位置
+                    var x = e.pageX - canvasimgf.offsetLeft;
+                    var y = e.pageY - canvasimgf.offsetTop;
+
+                    var transX= x-circles[mSelectedCircleIndex].x ;
+                    var transY=y-circles[mSelectedCircleIndex].y  ;
+
+                    // 将圆圈移动到鼠标位置
+                    previousSelectedCircle.x = x;
+                    previousSelectedCircle.y = y;
+                    circles[mSelectedCircleIndex]=previousSelectedCircle;
+
+                    $scope.mSelectedPoint(transX,transY,mSelectedCircleIndex);
+
+                    // 更新画布
+                    $scope.drawing();
+                }
+            }
+        }
+
+        $scope.drawLine=function(ctx,linestar,lineend,isRed,isLeft){
+            if(isLeft)
+            {index=0;}
+            else
+            {index=2;}
+            ctx.beginPath();
+            ctx.moveTo(postResponse.data.pts_f[linestar][index],postResponse.data.pts_f[linestar][index+1]);
+            var i=linestar;
+            i++;
+            for( ;i<=lineend;i++)
+            {
+                ctx.lineTo(postResponse.data.pts_f[i][index],postResponse.data.pts_f[i][index+1]);
+            }
+            ctx.lineWidth=lineWidth;
+            if(isRed){
+                ctx.strokeStyle="red";
+            }
+            else {
+                ctx.strokeStyle="yellow";
+            }
+            ctx.stroke();
+            ctx.closePath();
+        };
+
+        $scope.draw=function () {
+            var canvasimg = document.getElementById('canvasimg');//canvasimg为底层图片的画布
+            var ctximg = canvasimg.getContext('2d');
+            ctximg.drawImage(img,0 ,0);
+
+            for(var i=0;i<postResponse.data.FL_MP.length;i++){
+                var index=postResponse.data.FL_MP[i];
+                var circle=new $scope.createcircle(postResponse.data.pts_f[index][0],postResponse.data.pts_f[index][1]);
+                circles.push(circle);
+            }
+            for(var i=0;i<postResponse.data.FR_MP.length;i++){
+                var index=postResponse.data.FR_MP[i];
+                var circle=new $scope.createcircle(postResponse.data.pts_f[index][2],postResponse.data.pts_f[index][3]);
+                circles.push(circle);
+            }
+
+            $scope.drawing();
+
+        };
+
+    });
+
+    view.controller('drawimgs',function ($scope,$http,postResponse,Base64) {
+        var img = new Image();
+        $scope.$on('url_s', function (event, args) {
+            img.src=args.url_s;
+        });
+
+        var lineWidth=3;  //线的宽度
+        var circles=[];//保存画布上的特征点
+        var previousSelectedCircle;
+        var isDragging = false;//允许圆被拖动
+        var radius=10;
+        var mSelectedCircleIndex='';
+        var canvas = document.getElementById('canvas2');
+        var ctx = canvas.getContext('2d');
+
+        img.onload = function() {
+            canvas.onmousedown = $scope.canvasClick;
+            canvas.onmouseup = $scope.stopDragging;
+            canvas.onmouseout = $scope.stopDragging;
+            canvas.onmousemove = $scope.dragCircle;
+            $scope.draw();
+        };
+
+        $scope.createcircle=function(x,y){
+            this.x=x;
+            this.y=y;
+            this.isSelected=false;
+        };
+
+        $scope.drawing=function(){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.globalAlpha=1;
+            var isRed=false;
+            var isLeft=true;
+            var i=0;
+            for(var j=postResponse.data.SBCOLOR.length-1;j>=0;j--){
+                for(var indx=0;indx<2;indx++){
+                    end=postResponse.data.SBCOLOR[j][indx];
+                    $scope.drawLine(ctx,i,end,isRed,isLeft);
+                    i=postResponse.data.SBCOLOR[j][indx];
+                    isRed=!isRed;
+                }
+            }
+
+            $scope.drawLine(ctx,i,postResponse.data.pts_length-1,isRed,isLeft);
+            isRed=false;
+            isLeft=false;
+            i=0;
+            for(var j=postResponse.data.SFCOLOR.length-1;j>=0;j--){
+                for(var indx=0;indx<2;indx++){
+                    $scope.drawLine(ctx,i,postResponse.data.SFCOLOR[j][indx],isRed,isLeft);
+                    i=postResponse.data.SFCOLOR[j][indx];
+                    isRed=!isRed;
+                }
+            }
+            $scope.drawLine(ctx,i,postResponse.data.pts_length-1,isRed,isLeft);
+
+            ctx.fillStyle="#000FFF";
+            ctx.globalAlpha=0.5;
+
+            for(var i=0;i<circles.length;i++){
+                var circle = circles[i];
+                ctx.beginPath();
+                ctx.arc(circle.x,circle.y,radius,0,Math.PI*2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+        };
+
+        $scope.canvasClick=function (e) {
+            //取得画布鼠标点击点位置
+            var clickX = e.pageX - canvas.offsetLeft;
+            var clickY = e.pageY - canvas.offsetTop;
+
+            for(var i=circles.length-1; i>=0; i--) {
+                var circle = circles[i];
+                //使用勾股定理计算这个点与圆心之间的距离
+                var distanceFromCenter = Math.sqrt(Math.pow(circle.x - clickX, 2)
+                    + Math.pow(circle.y - clickY, 2))
+                // 判断这个点是否在圆圈中
+                if (distanceFromCenter <= radius) {
+                    // 清除之前选择的圆圈
+                    if (previousSelectedCircle != null) previousSelectedCircle.isSelected = false;
+                    previousSelectedCircle = circle;
+
+                    //选择新圆圈
+                    circle.isSelected = true;
+                    mSelectedCircleIndex=i;
+                    console.log(mSelectedCircleIndex);
+                    // 使圆圈允许拖拽
+                    isDragging = true;
+
+                    //更新显示
+                    $scope.drawing();
+
+                    //停止搜索
+                    return;
+                }
+            }
+
+            ;
+        };
+
+        $scope.stopDragging=function () {
+            isDragging = false;
+        }
+
+        $scope.mSelectedPoint=function (transX,transY,mSelectedCircleIndex) {
+
+            if(mSelectedCircleIndex<postResponse.data.SB_MP.length) {
+                Movelift=true;
+                Moveright=false;
+                mSelectedPointDownIndex=mSelectedCircleIndex>0?postResponse.data.SB_MP[mSelectedCircleIndex-1]:0;
+                mSelectedPointUpIndex=mSelectedCircleIndex<postResponse.data.SB_MP.length-1?postResponse.data.SB_MP[mSelectedCircleIndex+1]:postResponse.data.pts_length;
+                mSelectedPointIndex=postResponse.data.SB_MP[mSelectedCircleIndex];
+            }
+            else {
+                Movelift=false;
+                Moveright=true;
+                var mSelectedRightIndex= mSelectedCircleIndex-postResponse.data.SB_MP.length;
+                mSelectedPointDownIndex=mSelectedRightIndex>0?postResponse.data.SF_MP[mSelectedRightIndex-1]:0;
+                mSelectedPointUpIndex=mSelectedRightIndex<postResponse.data.SF_MP.length-1?postResponse.data.SF_MP[mSelectedRightIndex+1]:postResponse.data.pts_length;
+                mSelectedPointIndex=postResponse.data.SF_MP[mSelectedRightIndex];
+            }
+
+            for(var i=parseInt(mSelectedPointDownIndex);i<parseInt(mSelectedPointUpIndex);i++) {
+                if(i<mSelectedPointIndex) {
+                    var changeX = transX / ((mSelectedPointIndex - mSelectedPointDownIndex) / 2) * (((mSelectedPointIndex - mSelectedPointDownIndex) / 2) - (mSelectedPointIndex - i) / 2);
+                    var changeY = transY / ((mSelectedPointIndex - mSelectedPointDownIndex) / 2) * (((mSelectedPointIndex - mSelectedPointDownIndex) / 2) - (mSelectedPointIndex - i) / 2);
+
+                    if(Movelift){
+                        postResponse.data.pts_s[i][0]=parseFloat(postResponse.data.pts_s[i][0])+parseFloat(changeX);
+                        postResponse.data.pts_s[i][1]=parseFloat(postResponse.data.pts_s[i][1])+parseFloat(changeY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_s[i][2]=parseFloat( postResponse.data.pts_s[i][2])+parseFloat(changeX);
+                        postResponse.data.pts_s[i][3]=parseFloat(postResponse.data.pts_s[i][3])+parseFloat(changeY);
+                    }
+                }
+                else if(i==mSelectedPointIndex){
+                    if(Movelift){
+                        postResponse.data.pts_s[i][0]=parseFloat(postResponse.data.pts_s[i][0])+parseFloat(transX);
+                        postResponse.data.pts_s[i][1]=parseFloat(postResponse.data.pts_s[i][1])+parseFloat(transY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_s[i][2]=parseFloat( postResponse.data.pts_s[i][2])+parseFloat(transX);
+                        postResponse.data.pts_s[i][3]=parseFloat(postResponse.data.pts_s[i][3])+parseFloat(transY);
+                    }
+                }
+                else{
+                    var changeX = transX / ((mSelectedPointUpIndex-mSelectedPointIndex) / 2) * (((mSelectedPointUpIndex-mSelectedPointIndex) / 2) - (i-mSelectedPointIndex) / 2);
+                    var changeY = transY / ((mSelectedPointUpIndex-mSelectedPointIndex) / 2) * (((mSelectedPointUpIndex-mSelectedPointIndex) / 2) - (i-mSelectedPointIndex) / 2);
+
+                    if(Movelift){
+                        postResponse.data.pts_s[i][0]=parseFloat(postResponse.data.pts_s[i][0])+parseFloat(changeX);
+                        postResponse.data.pts_s[i][1]=parseFloat(postResponse.data.pts_s[i][1])+parseFloat(changeY);
+                    }
+                    if(Moveright){
+                        postResponse.data.pts_s[i][2]=parseFloat( postResponse.data.pts_s[i][2])+parseFloat(changeX);
+                        postResponse.data.pts_s[i][3]=parseFloat(postResponse.data.pts_s[i][3])+parseFloat(changeY);
+                    }
+                }
+            }
+        };
+
+        $scope.dragCircle=function (e) {
+            Movelift=false;
+            Moveright=false;
+            // 判断圆圈是否开始拖拽
+            if (isDragging == true) {
+                // 判断拖拽对象是否存在
+                if (previousSelectedCircle != null) {
+
+                    // 取得鼠标位置
+                    var x = e.pageX - canvas.offsetLeft;
+                    var y = e.pageY - canvas.offsetTop;
+
+                    var transX= x-circles[mSelectedCircleIndex].x ;
+                    var transY=y-circles[mSelectedCircleIndex].y  ;
+
+                    // 将圆圈移动到鼠标位置
+                    previousSelectedCircle.x = x;
+                    previousSelectedCircle.y = y;
+                    circles[mSelectedCircleIndex]=previousSelectedCircle;
+
+                    $scope.mSelectedPoint(transX,transY,mSelectedCircleIndex);
+
+                    // 更新画布
+                    $scope.drawing();
+                }
+            }
+        }
+
+        $scope.drawLine=function(ctx,linestar,lineend,isRed,isLeft){
+            if(isLeft)
+            {index=0;}
+            else
+            {index=2;}
+            ctx.beginPath();
+            ctx.moveTo(postResponse.data.pts_s[linestar][index],postResponse.data.pts_s[linestar][index+1]);
+            var i=linestar;
+            i++;
+            for( ;i<=lineend;i++)
+            {
+                ctx.lineTo(postResponse.data.pts_s[i][index],postResponse.data.pts_s[i][index+1]);
+            }
+            ctx.lineWidth=lineWidth;
+            if(isRed){
+                ctx.strokeStyle="red";
+            }
+            else {
+                ctx.strokeStyle="yellow";
+            }
+            ctx.stroke();
+            ctx.closePath();
+        };
+
+        $scope.draw=function () {
+            var canvasimg = document.getElementById('canvasimg2');//canvasimg为底层图片的画布
+            var ctximg = canvasimg.getContext('2d');
+            ctximg.drawImage(img,0 ,0);
+
+            for(var i=0;i<postResponse.data.SB_MP.length;i++){
+                var index=postResponse.data.SB_MP[i];
+                var circle=new $scope.createcircle(postResponse.data.pts_s[index][0],postResponse.data.pts_s[index][1]);
+                circles.push(circle);
+            }
+            for(var i=0;i<postResponse.data.SF_MP.length;i++){
+                var index=postResponse.data.SF_MP[i];
+                var circle=new $scope.createcircle(postResponse.data.pts_s[index][2],postResponse.data.pts_s[index][3]);
+                circles.push(circle);
+            }
+
+            $scope.drawing();
+
+        };
+
+    });
+
+    view.factory('postResponse',function () {  //控制器间通信，传递post返回json数据
+        return {};
+    });
+
+    view.factory('Base64', function() {
+        var keyStr = 'ABCDEFGHIJKLMNOP' +
+            'QRSTUVWXYZabcdef' +
+            'ghijklmnopqrstuv' +
+            'wxyz0123456789+/' +
+            '=';
+        return {
+            encode: function (input) {
+                var output = "";
+                var chr1, chr2, chr3 = "";
+                var enc1, enc2, enc3, enc4 = "";
+                var i = 0;
+
+                do {
+                    chr1 = input.charCodeAt(i++);
+                    chr2 = input.charCodeAt(i++);
+                    chr3 = input.charCodeAt(i++);
+
+                    enc1 = chr1 >> 2;
+                    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                    enc4 = chr3 & 63;
+
+                    if (isNaN(chr2)) {
+                        enc3 = enc4 = 64;
+                    } else if (isNaN(chr3)) {
+                        enc4 = 64;
+                    }
+
+                    output = output +
+                        keyStr.charAt(enc1) +
+                        keyStr.charAt(enc2) +
+                        keyStr.charAt(enc3) +
+                        keyStr.charAt(enc4);
+                    chr1 = chr2 = chr3 = "";
+                    enc1 = enc2 = enc3 = enc4 = "";
+                } while (i < input.length);
+
+                return output;
+            },
+
+            decode: function (input) {
+                var output = "";
+                var chr1, chr2, chr3 = "";
+                var enc1, enc2, enc3, enc4 = "";
+                var i = 0;
+
+                // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+                var base64test = /[^A-Za-z0-9\+\/\=]/g;
+                if (base64test.exec(input)) {
+                    alert("There were invalid base64 characters in the input text.\n" +
+                        "Valid base64 characters are A-Z, a-z, 0-9, '+', '/',and '='\n" +
+                        "Expect errors in decoding.");
+                }
+                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+                do {
+                    enc1 = keyStr.indexOf(input.charAt(i++));
+                    enc2 = keyStr.indexOf(input.charAt(i++));
+                    enc3 = keyStr.indexOf(input.charAt(i++));
+                    enc4 = keyStr.indexOf(input.charAt(i++));
+
+                    chr1 = (enc1 << 2) | (enc2 >> 4);
+                    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                    chr3 = ((enc3 & 3) << 6) | enc4;
+
+                    output = output + String.fromCharCode(chr1);
+
+                    if (enc3 != 64) {
+                        output = output + String.fromCharCode(chr2);
+                    }
+                    if (enc4 != 64) {
+                        output = output + String.fromCharCode(chr3);
+                    }
+
+                    chr1 = chr2 = chr3 = "";
+                    enc1 = enc2 = enc3 = enc4 = "";
+
+                } while (i < input.length);
+
+                return output;
+            }
+        };
+    });
+
+</script>
+</html>

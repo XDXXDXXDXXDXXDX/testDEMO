@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1, maximum-scale=1">
+
+    <title>Title</title>
+</head>
+<style>
+    canvas{
+        border:1px solid;
+    }
+</style>
+<body>
+<canvas id="cvs" width="500" height="500" ></canvas>
+</body>
+<script src="../public/dep/jquery/jquery-3.3.1.min.js"></script>
+<script>
+    var flag=false;
+    var el = document.getElementById('cvs');
+    var jqEl = $('#c');
+    var ctx = el.getContext('2d');
+    var isDrawing;
+    var addx=0;
+    el.onmousedown = function(e) {
+        isDrawing = true;
+        ctx.lineWidth = 10;
+        ctx.lineJoin = ctx.lineCap = 'round';
+        ctx.moveTo(e.offsetX,e.offsetY);
+    };
+    el.onmousemove = function(e) {
+        flag=true;
+        doSomething(e);
+        flag=false;
+        flag=true;
+        drawing(e);
+        flag=false;
+    };
+    el.onmouseup = function() {
+        isDrawing = false;
+    };
+
+
+    function doSomething(e) {
+        console.log("do something");
+        addx=20;
+    }
+    function drawing(e) {
+        console.log("draw")
+        if (isDrawing) {
+            ctx.lineTo(e.offsetX+addx,e.offsetY);
+            console.log(e.offsetX+" "+e.offsetY);
+            ctx.stroke();
+        }
+    }
+
+    var flag1=false;
+    var flag2=false;
+    function oper() {
+        flag1=true;
+        flag1=false;
+    }
+    function draw() {
+        flag1=true;
+        flag1=false;
+    }
+    function lock() {
+    }
+
+
+</script>
+</html>

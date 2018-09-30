@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Account Management</title>
+    <link href="../public/dep/toast/css/toast.min.css" rel="stylesheet">
+    <link href="../public/css/measure.min.css" rel="stylesheet" >
+    <link href="../public/css/account.min.css" rel="stylesheet" >
+</head>
+<body>
+<div class="account-html">
+    <!--头部导航栏开始-->
+    <div class="header-container">
+        <a class="header-logo" href="/" title="易量体开放平台">
+            <img src="../public/assets/imgs/logo-white-en.png">
+        </a>
+        <div class="switch-langue">
+            <a class="cnAccountUrl"  href="#"><span>中文</span></a>
+            <a class="jpAccountUrl"  href="#"><span>日本語</span></a>
+        </div>
+        <div class="header-nav-bar-container">
+            <ul class="header-nav-bar-content">
+                <li>
+                    <a href="https://www.tozmart.com"><span>Home</span></a>
+                </li>
+                <li id="headerMeasure"  >
+                    <a href="measure.html"><span id="Measure">Measure</span></a>
+                </li>
+                <li  id="headerTutorial">
+                    <a href="tutorial.html"><span id="Tutorial">Tutorial</span></a>
+                </li>
+                <li  id="accountContainer" class="toz-header-drop-down nav-bar-select">
+                    <div class="header-account ">
+                        <a href="#"><span>Account</span></a>
+                    </div>
+                    <ul class="toz-header-drop-down-content">
+                        <li><span id="corpName"></span></li>
+                        <li id="Logout"><span>Logout</span></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="account-management-page">
+        <div class="account-management-container">
+            <div class="account-management-content">
+                <ul class="account-img-container" >
+                    <li >
+                        <div class="item-name">
+                            <img src="../public/assets/imgs/use.png">
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <img src="../public/assets/imgs/right_account.png">
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <img src="../public/assets/imgs/email.png">
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <img src="../public/assets/imgs/key.png">
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <img src="../public/assets/imgs/api.png">
+                        </div>
+                    </li>
+                </ul>
+                <ul class="account-name-container" >
+                    <li >
+                        <div class="item-name">
+                            <p>Total Allowance</p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <p>Used</p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <p>Email</p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <p>Password</p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-name">
+                            <p>Server Domain</p>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="account-data-container">
+                    <li >
+                        <div class="item-operation item-operation-border">
+                            <p id="totalTimes"></p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-operation item-operation-border">
+                            <p id="measureTimes"></p>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-operation item-operation-border">
+                            <a id="emailName"></a>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-operation item-operation-border">
+                            <input type="text" class="pw-input" placeholder="********" disabled>
+                        </div>
+                    </li>
+                    <li >
+                        <div id="chgTozAPI" class="item-operation item-operation-border">Null</div>
+                    </li>
+                </ul>
+                <ul class="account-operation-container">
+                    <li >
+                        <div class="item-operation"></div>
+                    </li>
+                    <li >
+                        <div class="item-operation"></div>
+                    </li>
+                    <li >
+                        <div class="item-operation">
+                            <button id="chgEmail">Change</button>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-operation">
+                            <button id="chgPassword">Change</button>
+                        </div>
+                    </li>
+                    <li >
+                        <div class="item-operation">
+                            <button id="chgAPI">Change</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="reset-email-html">
+    <div class="reset-header-container">
+        <ul class="reset-header-content">
+            <div class="switch-langue">
+                <a class="cnAccountUrl"  href="#"><span>中文</span></a>
+                <a class="jpAccountUrl"  href="#"><span>日本語</span></a>
+            </div>
+        </ul>
+    </div>
+    <div class="reset-password-page">
+        <div class="reset-password-container">
+            <div class="reset-password-header">
+                <p>Reset My Email</p>
+            </div>
+            <div class="reset-password-content">
+                <ul class="img-container">
+                    <li class="email-icon-container">
+                        <img src="../public/assets/imgs/email.png">
+                    </li>
+                    <li class="ver-code-container">
+                        <img src="../public/assets/imgs/ver_code.png">
+                    </li>
+                </ul>
+                <ul class="input-container">
+                    <li class="email-icon-container">
+                        <input id="email" type="email" placeholder="E-mail address">
+                        <button id="sendCode">Send</button>
+                    </li>
+                    <li class="ver-code-container">
+                        <input id="VerCode" placeholder="Enter the verification code">
+                        <img id="codeRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon">
+                        <img id="codeWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon">
+                    </li>
+                    <li>
+                        <div class="email-submit-container">
+                            <button class=" return-account-html">Return</button>
+                            <button id="emailSubmit" disabled>Confirm</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="send-email-icon">
+                <img src="../public/assets/imgs/sende.png">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="reset-password-html">
+    <div class="reset-header-container">
+        <ul class="reset-header-content">
+            <div class="switch-langue">
+                <a class="cnAccountUrl"  href="#"><span>中文</span></a>
+                <a class="jpAccountUrl"  href="#"><span>日本語</span></a>
+            </div>
+        </ul>
+    </div>
+    <div class="reset-password-page">
+        <div class="reset-password-container">
+            <div class="reset-password-header">
+                <p>Reset My Password</p>
+            </div>
+            <div class="reset-password-content">
+                <ul class="img-container">
+                    <li class="enter-password-container">
+                        <img src="../public/assets/imgs/key.png">
+                    </li>
+                    <li class="enter-password-container">
+                        <img src="../public/assets/imgs/key.png">
+                    </li>
+                </ul>
+                <ul class="input-container">
+                    <li class="enter-password-container">
+                        <input id="oldPassword" type="password"  placeholder="Enter the old password">
+                    </li>
+                    <li id="firPwContainer"  class="enter-password-container">
+                        <input id="firPw"  type="password"  placeholder="Enter the new password">
+                        <img id="firPwRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon ">
+                        <img id="firPwWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon ">
+                        <div id="firPwWarning" class="pw-warning-text"></div>
+                    </li>
+                    <li id="secPwContainer"  class="enter-password-container">
+                        <input id="secPw" type="password"  placeholder="Re-enter the new password">
+                        <img id="secPwRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon ">
+                        <img id="secPwWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon ">
+                        <div id="secPwWarning" class="pw-warning-text"></div>
+                    </li>
+                    <li>
+                        <div class="password-submit-container">
+                            <button class=" return-account-html">Return</button>
+                            <button id="PwSubmit" >Confirm</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="send-email-icon">
+                <img src="../public/assets/imgs/sende.png">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="reset-api-html">
+    <div class="reset-header-container">
+        <ul class="reset-header-content">
+            <div class="switch-langue">
+                <a class="cnAccountUrl"  href="#"><span>中文</span></a>
+                <a class="jpAccountUrl"  href="#"><span>日本語</span></a>
+            </div>
+        </ul>
+    </div>
+    <div class="reset-password-page">
+        <div class="reset-password-container">
+            <div class="reset-password-header">
+                <p>Server Domain </p>
+            </div>
+            <div class="reset-password-content">
+                <ul class="img-container" style="width: 5%;">
+                    <li class="api-icon-container">
+                        <img src="../public/assets/imgs/api.png">
+                    </li>
+                    <li class="api-icon-container"></li>
+                    <li class="auth-icon-container">
+                        <img src="../public/assets/imgs/auth.png">
+                    </li>
+                    <li class="api-icon-container"></li>
+                </ul>
+                <ul class="img-container" style="width: 25%;">
+                    <li class="api-icon-container">
+                        Authorized Domain
+                    </li>
+                    <li class="api-icon-container"></li>
+                    <li class="auth-icon-container">
+                        HTTP Basic Auth
+                    </li>
+                    <li class="api-icon-container"></li>
+                </ul>
+                <ul class="api-input-container" style="width: 70%;">
+                    <li >
+                        <div class="edit-container">
+                            <span>https://</span>
+                            <input id="corpApi" type="text" value="" />
+                        </div>
+
+                    </li>
+                    <li ><div id="cApiWarnText" class="capi-warn-text"></div></li>
+                    <li>
+                        <div class="edit-container" style="width: 290px">
+                            <input id="httpBasicAuth" type="text" value="" style="width: 100%" />
+                        </div>
+                    </li>
+                    <li></li>
+                    <li >
+                        <div class="api-submit-container">
+                            <button class="return-account-html">Return</button>
+                            <button id="APISubmit">Submit</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="send-email-icon">
+                <img src="../public/assets/imgs/sende.png">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../public/dep/jquery/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="../public/dep/toast/js/toast.min.js" type="text/javascript"></script>
+<!--<script src="../public/js/dataTable.js" type="text/javascript"></script>-->
+<script src="../public/js/account.min.js" type="text/javascript"></script>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1, maximum-scale=1">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="c" width="500" height="500" style="border: 1px solid"></canvas>
+</body>
+<script src="../public/dep/jquery/jquery-3.3.1.min.js"></script>
+<script>
+    var el = document.getElementById('c');
+    var jqEl = $('#c');
+    var ctx = el.getContext('2d');
+    var isDrawing;
+    el.onmousedown = function(e) {
+        isDrawing = true;
+        ctx.lineWidth = 10;
+        ctx.lineJoin = ctx.lineCap = 'round';
+        ctx.moveTo(e.clientX - jqEl.position().left, e.clientY - jqEl.position().top);
+    };
+    el.onmousemove = function(e) {
+        if (isDrawing) {
+            ctx.lineTo(e.clientX - jqEl.position().left, e.clientY - jqEl.position().top);
+            ctx.stroke();
+        }
+    };
+    el.onmouseup = function() {
+        isDrawing = false;
+    };
+</script>
+</html>

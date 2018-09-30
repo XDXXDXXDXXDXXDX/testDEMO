@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+</head>
+<style>
+    body{
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+    .position{
+        position: absolute;
+        top: 50px;
+        left: 0px;
+        bottom: 0px;
+    }
+    .canvas-content{
+        width: 100%;
+        height: 650px;
+        display: flex;
+        display:-moz-flex;
+        display:-ms-flex;;
+        display: -o-flex;
+        display: -webkit-flex;
+        flex-direction: row;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        -webkit-flex-wrap: wrap;
+        justify-content:space-around;
+        -webkit-justify-content: space-around;
+        align-items:flex-start;
+        -webkit-align-items: flex-start;
+        align-content:space-between;
+        -webkit-align-content: space-between;
+    }
+    .draw-content{
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height:100%;
+        min-width: 300px;
+        display: flex;
+        display:-moz-flex;
+        display:-ms-flex;;
+        display: -o-flex;
+        display: -webkit-flex;
+        flex-direction: row;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-wrap: nowrap;
+        -ms-flex-wrap: nowrap;
+        -webkit-flex-wrap: nowrap;
+        justify-content:center;
+        -webkit-justify-content: center;
+        align-items:flex-start;
+        -webkit-align-items: flex-start;
+    }
+</style>
+<body ng-app="adjustment" ng-controller="SwitchViewCtrl" >
+<button id="button" onclick="getData()">获取轮廓</button>
+<button id="imgf-retr-button">正回退</button>
+<button id="imgs-retr-button">侧回退</button>
+<button id="upload">上传轮廓</button>
+<button id="prompt">提示</button>
+<div id="a1-a"></div>
+<div class="position">
+    <div  class="canvas-content" id="canvas-content">
+        <div class="draw-content" id="draw-imgf" toz-draw-imgf="imgf"></div>
+        <!--<div class="draw-content" id="draw-imgs" toz-draw-imgs="imgs"></div>-->
+    </div>
+</div>
+
+
+</body>
+<script src="../public/dep/jquery/jquery-3.3.1.min.js"></script>
+<!--<script src="touch.js"></script>-->
+<script src="../public/dep/angular-1.6.8/angular.min.js"></script>
+<script src="../public/js/tozDraw.js"></script>
+<script>
+    console.log("measure");
+    var data={};
+    var ctrl= document.querySelector('[ng-controller=SwitchViewCtrl]');
+    var  getData=function  (){
+        var reqData={
+            'accessToken':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JwSWQiOiJvNHgwNGh5M3psamdoZjdvYTQiLCJpYXQiOjE1MzI0MjE5NzcsImV4cCI6MTUzMzExMzE3N30.f8F6SmhKrExRkTBkYpi36fM2Q88FeeqL2e00n1ma_R4',
+            'id':'218851',
+        };
+
+        try {
+            var imgsreq=$.ajax({
+                type: 'post',
+                url: 'https://www.emtailor.com/b2b/api/measure/imgs',
+                data: reqData,
+                timeout: 120000,          // 设置超时时间
+                dataType: 'JSON',
+                async: true,
+                success:function (res) {
+                    console.log(res)
+                    if(res.data.code=="200"&&res.data.data.length!=0){
+                        //console.log(res);
+                        $("#coverLayer").hide();
+                        var jsonptsInfo=JSON.parse(res.data.data.ptsInfo);
+                        jsonptsInfo=jsonptsInfo[jsonptsInfo.length-1];
+                        //console.log(jsonptsInfo);
+
+                        //得到pts_f
+                        var first_grouping=jsonptsInfo.pts_f.split(",");
+                        var second_grouping;
+
+                        var pts_f=[];
+                        for(var i=0;i<first_grouping.length;i++) {
+                            pts_f[i]=new Array();
+                            second_grouping= first_grouping[i].split(":");
+                            for(var j=0;j<second_grouping.length;j++){
+                                pts_f[i].push(Number(second_grouping[j]));
+                            }
+                        }
+
+                        //得到pts_S[0] [1]代表侧面照身体正面的点的x、y，[2][3]代表侧面照身体背面的点的x、y
+                        first_grouping=jsonptsInfo.pts_s.split(",");
+                        var pts_s=[];
+                        for(var i=0;i<first_grouping.length;i++) {
+                            pts_s[i]=new Array();
+                            second_grouping= first_grouping[i].split(":");
+
+                            for(var j=0;j<second_grouping.length;j++){
+                                pts_s[i].push(Number(second_grouping[j]));
+                            }
+                        }
+
+                        var jsonbasicInfo=JSON.parse(res.data.data.basicInfo);
+                        //得到FL_MP
+                        var FL_MP=new Array();
+                        first_grouping=jsonbasicInfo.FL_MP.split(";");
+                        second_grouping=first_grouping[0].split(",");
+                        for(var j=0;j<second_grouping.length;j++){
+                            FL_MP.push(Number(second_grouping[j]));
+                        }
+                        //得到FR_MP
+                        var FR_MP=new Array();
+                        first_grouping=jsonbasicInfo.FR_MP.split(";");
+                        second_grouping=first_grouping[0].split(",");//分割FR_MP
+                        for(var j=0;j<second_grouping.length;j++){
+                            FR_MP.push(Number(second_grouping[j]));
+                        }
+                        //得到SF_MP
+                        var SF_MP=new Array();
+                        first_grouping=jsonbasicInfo.SF_MP.split(";");
+                        second_grouping=first_grouping[0].split(",");//分割FR_MP
+                        for(var j=0;j<second_grouping.length;j++){
+                            SF_MP.push(Number(second_grouping[j]));
+                        }
+                        //得到SB_MP
+                        var SB_MP=new Array();
+                        first_grouping=jsonbasicInfo.SB_MP.split(";");
+                        second_grouping=first_grouping[0].split(",");//分割FR_MP
+                        for(var j=0;j<second_grouping.length;j++){
+                            SB_MP.push(Number(second_grouping[j]));
+                        }
+                        //console.log(SB_MP)
+                        //得到FLCOLOR
+                        first_grouping=jsonbasicInfo.FLCOLOR.split(",");
+                        var FLCOLOR=[];
+                        for(var i=0;i<first_grouping.length-1;i++)
+                        {
+                            second_grouping=first_grouping[i].split(":");
+                            FLCOLOR[i]=new Array();
+                            for(var j=0;j<second_grouping.length;j++){
+                                FLCOLOR[i].push(Number(second_grouping[j]));
+                            }
+                        }
+                        //得到FRCOLOR
+                        first_grouping=jsonbasicInfo.FLCOLOR.split(",");
+                        var FRCOLOR=[];
+                        for(var i=0;i<first_grouping.length-1;i++)
+                        {
+                            second_grouping=  first_grouping[i].split(":");
+                            FRCOLOR[i]=new Array();
+                            for(var j=0;j<second_grouping.length;j++){
+                                FRCOLOR[i].push(Number(second_grouping[j]));
+                            }
+                        }
+
+                        //得到SFCOLOR
+                        first_grouping=jsonbasicInfo.SFCOLOR.split(",");
+                        var SFCOLOR=[];
+                        for(var i=0;i<first_grouping.length-1;i++)
+                        {
+                            second_grouping=  first_grouping[i].split(":");
+                            SFCOLOR[i]=new Array();
+                            for(var j=0;j<second_grouping.length;j++){
+                                SFCOLOR[i].push(Number(second_grouping[j]));
+                            }
+                        }
+                        //得到SBCOLOR
+                        first_grouping=jsonbasicInfo.SBCOLOR.split(",");
+                        var SBCOLOR=[];
+                        for(var i=0;i<first_grouping.length-1;i++)
+                        {
+                            second_grouping=  first_grouping[i].split(":");
+                            SBCOLOR[i]=new Array();
+                            for(var j=0;j<second_grouping.length;j++){
+                                SBCOLOR[i].push(Number(second_grouping[j]));
+                            }
+                        }
+                        first_grouping=jsonbasicInfo.img_f_size.split(":");
+                        var img_f_width=Number(first_grouping[0]);
+                        var img_f_height=Number(first_grouping[1]);
+
+                        first_grouping=jsonbasicInfo.img_s_size.split(":");
+                        var img_s_width=Number(first_grouping[0]);
+                        var img_s_height=Number(first_grouping[1]);
+
+                        //获得图片base64
+                        var imgf_src="data:image/jpg;base64,"+res.data.data.userImgBasedF;
+                        var imgs_src="data:image/jpg;base64,"+res.data.data.userImgBasedS;
+
+
+                        data= {
+                            id:res.data.data.id,
+                            PaintLines:JSON.parse(jsonptsInfo.paintLines), //得到PaintLines
+                            // PaintLines_target:PaintLines_target,
+                            pts_f:pts_f,
+                            // pts_f_target:pts_f_target,
+                            pts_s:pts_s,
+                            // pts_s_target:pts_s_target,
+                            url_f:imgf_src,
+                            url_s:imgs_src,
+                            FL_MP:FL_MP,
+                            FR_MP:FR_MP,
+                            SF_MP:SF_MP,
+                            SB_MP:SB_MP,
+                            FLCOLOR:FLCOLOR,
+                            FRCOLOR:FRCOLOR,
+                            SFCOLOR:SFCOLOR,
+                            SBCOLOR:SBCOLOR,
+                            img_f_width:img_f_width,
+                            img_f_height:img_f_height,
+                            img_s_width:img_s_width,
+                            img_s_height:img_s_height,
+                            isTutorial:false,
+                            imgCont:["#draw-imgf","#draw-imgs"],//容器id号
+                            retrButton:["#imgf-retr-button","#imgs-retr-button"],//回退事件按键id号
+                            // promptButton:"#prompt",//提示按钮 用于开启提示点
+                        };
+                        var scope = angular.element(ctrl).scope();
+                        scope.getData(data);
+                    }
+                    else{
+                        $("#coverLayer").hide();
+                        alert("Sorry, network connection failed. Please try again.");
+                    }
+                },
+                fail:function (err) {
+                    alert(err);
+                },
+                complete: function (XMLHttpRequest,status) {
+                    if(status == 'timeout') {
+                        imgsreq.abort();    // 超时后中断请求
+                        alert("Sorry, network connection failed. Please try again.");
+                    }
+                }
+            });
+        }catch (e) {
+            alert(e)
+        }
+
+    };
+
+    function isPc() {
+        var system ={};
+        var p = navigator.platform;
+        system.win = p.indexOf("Win") == 0;
+        system.mac = p.indexOf("Mac") == 0;
+        system.x11 = (p == "X11") || (p.indexOf("Linux") == 0);
+        if(system.win||system.mac||system.xll){//如果是电脑跳转到
+            return true;
+        }else{  //如果是手机,跳转到
+            return false;
+        }
+    }
+</script>
+</html>

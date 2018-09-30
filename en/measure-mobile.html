@@ -1,0 +1,402 @@
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+	<title>1Measure Backend</title>
+	<!--导入css文件-->
+	<link rel="stylesheet" href="../public/dep/toast/css/toast.min.css" >
+	<link rel="stylesheet" href="../public/css/scrollbar.min.css" >
+	<link rel="stylesheet" href="../public/css/mobile.css" >
+	<link rel="stylesheet" href="../public/css/measure.css" >
+	<link rel="stylesheet" href="../public/css/account.css" >
+</head>
+<body ng-app="adjustment" ng-controller="SwitchViewCtrl" class="mobile-body">
+
+<!--底部导航栏开始-->
+<div class="footer-container">
+	<div class="footer-nav-bar-container">
+		<ul class="footer-nav-bar-content">
+			<li id="footerList" class="mobile-selected">
+				<img src="../public/assets/imgs/list.png">
+			</li>
+			<li id="footerMeasure" >
+				<img src="../public/assets/imgs/measure.png">
+			</li>
+			<li  id="footerTutorial">
+				<img src="../public/assets/imgs/tutorial.png">
+			</li>
+			<li id="footerAccount">
+				<img src="../public/assets/imgs/account.png">
+			</li>
+		</ul>
+	</div>
+</div>
+
+<!--列表界面-->
+<div id="catalogContainer" class="mobile-catalog-container mobile-container">
+	<div class="mobile-sidebar-nav">
+		<ul class="mobile-treeth">
+			<li id="mobileSearch" class="toz-drop-down toz-mobile-search">
+				<img src="../public/assets/imgs/search.png">
+				<p>Search</p>
+			</li>
+			<li>
+				<img id="prePage" src="../public/assets/imgs/prePage.png">
+			</li>
+			<li>
+				<img id="nextPage" src="../public/assets/imgs/nextPage.png">
+			</li>
+			<li >
+				<img id="sortDe" src="../public/assets/imgs/sort_mobile_de.png">
+				<img id="sortAs" src="../public/assets/imgs/sort_mobile_as.png" style="display: none">
+			</li>
+			<!--<li class="toz-drop-down">-->
+			<!--<img src="../public/assets/imgs/export.png">-->
+			<!--</li>-->
+		</ul>
+	</div>
+	<!--目录列表-->
+	<div id="listContainer" class="mobile-catalog-content">
+		<ol class="cus-list"></ol>
+	</div>
+
+	<!--搜索-->
+	<div id="searchContainer" class="mobile-search-container" style="display: none;">
+		<ul>
+			<!--搜索中的id筛选ng-controller="SearchCtrl"-->
+			<li >
+				<span>User ID:</span>
+				<input ng-model="searchId">
+			</li>
+			<!--搜索中时间筛选-->
+			<li  >
+				<span>Time:</span>
+				<div class="set-on-line">
+					<div class="input-time-container">
+						<input ng-model="startTime" id="startTime" type="date"  max="2050-12-31" >
+					</div>
+					<span>to</span>
+					<div class="input-time-container">
+						<input ng-model="endTime" id="endTime" type="date" max="2050-12-31">
+					</div>
+
+				</div>
+			</li>
+			<!-- 下拉框 -->
+			<li >
+				<span>Status:</span></br>
+				<div class="set-on-line">
+					<input type='radio'name="selectedStatus" value="-1" id= 'switch' checked="checked">
+					<label for='switch'>All</label>
+
+					<input type='radio' name="selectedStatus" value="0" id= 'switch1'>
+					<label for='switch1'>New</label>
+
+					<input type='radio' name="selectedStatus" value="1" id= 'switch2'>
+					<label for='switch2'>Confirmed</span></label>
+					<!--搜索-->
+					<div class="submit-button">
+						<input id="searchButton" onclick="search()" type="submit" value="" >
+					</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div id="pageToolbar" style="display: none"></div>
+</div>
+
+<div id="adjustContainer" class="mobile-adjust-container mobile-container" style="display: none">
+	<div class="mobile-button-group" style="display: none">
+		<div class="button-on-top">
+			<button id="getMeasurements" onclick="getMeasurements()" ><img src="../public/assets/imgs/plus.png"></button>
+			<button id="retractFront" class="retract-front" disabled="disabled"><img src="../public/assets/imgs/retro.png"></button>
+			<button id="retractSide"  class="retract-side" disabled="disabled"><img src="../public/assets/imgs/retro.png"></button>
+			<button id="showSideImg"  class="show-side-img" ><img src="../public/assets/imgs/switch.png"></button>
+			<button id="showFrontImg" class="show-front-img" ><img src="../public/assets/imgs/switch.png"></button>
+		</div>
+		<div class="button-on-bottom">
+			<button id="prompt"><img src="../public/assets/imgs/target.png"></button>
+			<button id="showTips" class="show-tips"><img src="../public/assets/imgs/tip.png"></button>
+		</div>
+	</div>
+	<div id="canvasContainer" class="mobile-canvas-container">
+		<div id="imgfContent" class="content-imgf" >
+			<div class="draw-content" id="imgfContainer" toz-draw-imgf="imgf"></div>
+		</div>
+		<div id="imgsContent" class="content-imgs" >
+			<div class="draw-content" id="imgsContainer"toz-draw-imgs="imgs"></div>
+		</div>
+	</div>
+</div>
+
+<div id="showContainer" class="mobile-show-container mobile-container" style="display: none">
+	<div class="content-show">
+		<div class="table-sytle">
+			<div class="fir-table">
+				<div class="title">
+					<table class="table2excel">
+						<tbody class="table-color">
+						<tr>
+							<th class="table-title-Part">Part</th>
+							<th >Name</th>
+							<th  onclick="toogle(this)" class="unit-toogle">CM</th>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="content">
+					<table id="firBodySizeList"></table>
+				</div>
+			</div>
+
+			<div class="sce-table">
+				<div class="title">
+					<table class="table2excel">
+						<tbody class="table-color">
+						<tr>
+							<th class="table-title-Part">Part</th>
+							<th >Name</th>
+							<th  onclick="toogle(this) " class="unit-toogle">CM</th>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="content">
+					<table id="secBodySizeList"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="size-list-button-container">
+		<button id="toExcelButton">Export Excel</button>
+		<button id="submitSizesList">Confirm</button>
+	</div>
+</div>
+
+<div id="tutorialContainer" class="mobile-tutorial-container mobile-container" style="display: none">
+	<div id="tllistContainer" class="mobile-catalog-content">
+		<ol id="tutorialList" class="cus-list"></ol>
+	</div>
+</div>
+
+<div id="accountContainer" class="mobile-account-container mobile-container" style="display: none">
+	<div class="mobile-account-html account-html">
+		<!--头部导航栏开始-->
+		<div class="account-management-container">
+			<div class="account-management-content">
+				<ul class="account-img-container" >
+					<li >
+						<div class="item-name">
+							<img src="../public/assets/imgs/use.png">
+						</div>
+					</li>
+					<li >
+						<div class="item-name">
+							<img src="../public/assets/imgs/right_account.png">
+						</div>
+					</li>
+					<li >
+						<div class="item-name">
+							<img src="../public/assets/imgs/email.png">
+						</div>
+					</li>
+					<li >
+						<div class="item-name">
+							<img src="../public/assets/imgs/key.png">
+						</div>
+					</li>
+					<li >
+						<div class="item-name">
+							<img src="../public/assets/imgs/api.png">
+						</div>
+					</li>
+				</ul>
+				<ul class="account-data-container">
+					<li >
+						<div class="item-operation item-operation-border">
+							<p id="totalTimes"></p>
+						</div>
+					</li>
+					<li >
+						<div class="item-operation item-operation-border">
+							<p id="measureTimes"></p>
+						</div>
+					</li>
+					<li id="chgEmail">
+						<div class="item-operation item-operation-border">
+							<a id="emailName"></a>
+						</div>
+					</li>
+					<li id="chgPassword">
+						<div class="item-operation item-operation-border">
+							<input type="text" class="pw-input" placeholder="********" disabled>
+						</div>
+					</li>
+					<li id="chgAPI">
+						<div id="chgTozAPI" class="item-operation item-operation-border">Null</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="reset-email-html">
+		<div class="reset-password-page">
+			<div class="reset-password-container">
+				<div class="reset-password-header">
+					<p>Reset My Email</p>
+				</div>
+				<div class="reset-password-content">
+					<ul class="img-container">
+						<li class="email-icon-container">
+							<img src="../public/assets/imgs/email.png">
+						</li>
+						<li class="ver-code-container">
+							<img src="../public/assets/imgs/ver_code.png">
+						</li>
+						<li style="visibility: hidden"></li>
+					</ul>
+					<ul class="input-container">
+						<li class="email-icon-container">
+							<input id="email" type="email" placeholder="E-mail address">
+							<button id="sendCode">Send</button>
+						</li>
+						<li class="ver-code-container">
+							<input id="VerCode" placeholder="Enter the verification code">
+
+							<img id="codeRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon">
+							<img id="codeWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon">
+
+						</li>
+						<li >
+							<div class="email-submit-container">
+								<button class=" return-account-html">Return</button>
+								<button id="emailSubmit" disabled>Confirm</button>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div class="send-email-icon">
+					<img src="../public/assets/imgs/sende.png">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="reset-password-html">
+		<div class="reset-password-page">
+			<div class="reset-password-container">
+				<div class="reset-password-header">
+					<p>Reset My Password</p>
+				</div>
+				<div class="reset-password-content">
+					<ul class="img-container">
+						<li class="enter-password-container">
+							<img src="../public/assets/imgs/key.png">
+						</li>
+						<li class="enter-password-container">
+							<img src="../public/assets/imgs/key.png">
+						</li>
+						<li class="enter-password-container" style="visibility: hidden"></li>
+						<li class="enter-password-container" style="visibility: hidden"></li>
+						<li class="enter-password-container" style="visibility: hidden"></li>
+						<li class="enter-password-container" style="visibility: hidden"></li>
+					</ul>
+					<ul class="input-container">
+						<li class="enter-password-container">
+							<input id="oldPassword" type="password"  placeholder="Enter the old password">
+						</li>
+						<li id="firPwContainer"  class="enter-password-container">
+							<input id="firPw"  type="password"  placeholder="Enter the new password">
+							<img id="firPwRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon ">
+							<img id="firPwWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon ">
+						</li>
+						<li id="firPwWarning" class="pw-warning-text"></li>
+						<li id="secPwContainer"  class="enter-password-container">
+							<input id="secPw" type="password"  placeholder="Re-enter the new password">
+							<img id="secPwRight" src="../public/assets/imgs/vericode_right.png" class="ver-code-icon ">
+							<img id="secPwWrong" src="../public/assets/imgs/vericode_wrong.png" class="ver-code-icon ">
+						</li>
+						<li id="secPwWarning" class="pw-warning-text"></li>
+						<li>
+							<div class="password-submit-container">
+								<button class="return-account-html">Return</button>
+								<button id="PwSubmit" >Confirm</button>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div class="send-email-icon">
+					<img src="../public/assets/imgs/sende.png">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="reset-api-html">
+		<div class="reset-password-page">
+			<div class="reset-password-container">
+				<div class="reset-password-header">
+					<p>Server Domain</p>
+				</div>
+				<div class="reset-password-content">
+					<ul class="img-container" style="width: 10%;">
+						<li class="api-icon-container">
+							<img src="../public/assets/imgs/api.png">
+						</li>
+						<li class="api-icon-container"></li>
+						<li class="auth-icon-container">
+							<img src="../public/assets/imgs/auth.png">
+						</li>
+						<li class="api-icon-container"></li>
+						<li class="api-icon-container"></li>
+					</ul>
+					<ul class="api-input-container" style="width: 70%;">
+						<li>
+							<div class="edit-container">
+								<span>https://</span>
+								<input id="corpApi" type="text" value="" />
+							</div>
+
+						</li>
+						<li><div id="cApiWarnText" class="capi-warn-text"></div></li>
+						<li>
+							<div class="edit-container" >
+								<input id="httpBasicAuth" type="text" value=""/>
+							</div>
+						</li>
+						<li></li>
+						<li >
+							<div class="api-submit-container">
+								<button class="return-account-html">Return</button>
+								<button id="APISubmit">Confirm</button>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div class="send-email-icon">
+					<img src="../public/assets/imgs/sende.png">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<!--导入第三方库-->
+<script src="../public/dep/jquery/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="../public/dep/malihu-custom-scrollbar-plugin-master/js/jquery.mCustomScrollbar.concat.min.js" type="text/javascript"></script>
+<script src="../public/dep/angular-1.6.8/angular.min.js" type="text/javascript"></script>
+<script src="../public/dep/toast/js/toast.min.js" type="text/javascript"></script>
+<script src="../public/dep/json2excel/JsonExportExcel.min.js" type="text/javascript"></script>
+<!--导入js文件-->
+<script src="../public/js/paging.min.js" type="text/javascript"></script>
+<script src="../public/js/dataTable.js" type="text/javascript"></script>
+<script src="../public/js/tozDraw.js" type="text/javascript"></script>
+<script src="../public/js/common.js" type="text/javascript"></script>
+<script src="../public/js/mobile.js" type="text/javascript"></script>
+<script src="../public/js/account.js" type="text/javascript"></script>
+</html>

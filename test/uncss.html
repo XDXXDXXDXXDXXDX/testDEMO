@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    var gulp = require('gulp'), uncss = require('gulp-uncss');
+    console.log('run');
+    gulp.task('uncss', function() {
+        //冗余css文件
+        return gulp.src('uncss.css')
+            .pipe(uncss({
+                //使用css的html页面，可多个
+                html: ['uncss.html']
+            }))
+            //输出目录
+            .pipe(gulp.dest('out'));
+    });
+</script>
+</html>

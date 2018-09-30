@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body ng-app="myApp" ng-controller="myCtr">
+<!--<toz-id title="testTitle"> </toz-id>-->
+<div id="test" toz-id="test" title="testTitle"></div>
+<div id="test2" toz-id="test" title="testTitle"></div>
+</body>
+<script src="../public/dep/angular-1.6.8/angular.min.js"></script>
+<script>
+    var myapp=angular.module('myApp',[]);
+    function getId() {
+        return 'canvas'
+    }
+    myapp.factory('dataSrv',[function (){
+        return{
+            id:{},
+            genID:function(length){
+                return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
+            },
+        }
+    }])
+
+    myapp.controller("myCtr",['$scope','dataSrv',function ($scope,dataSrv) {
+        $scope.getId=function() {
+            return 'canvasCtr'
+        }
+        console.log(dataSrv.id)
+    }])
+
+    myapp.directive("tozId",['dataSrv',function (dataSrv) {
+        return{
+            restrict:'EA',
+            replace:true,
+            scope:{},
+            template:function(tElement,tAttrs){
+                console.log("temp");
+                var drawId="fDrCvs"+dataSrv.genID(3);
+                var imgId="fImgCvs"+dataSrv.genID(3);
+                var _html =' <div><canvas id='+drawId+' style="display:block; position:absolute; z-index: 1"></canvas> ' +
+                    '<canvas id='+imgId+'  style="display:block; position: absolute;z-index: 0"></canvas></div>';
+                dataSrv.id[tAttrs.id]=[drawId,imgId];
+                return _html;
+            },//' <div><canvas id='+getId()+'  style="display:block; position:absolute; z-index: 1"></canvas></div>',
+            controller:["$scope",'$element','$attrs',function($scope,$element, $attrs) {
+                console.log(dataSrv.id[$attrs.id])
+            }],
+            link:function ($scope,$element, $attrs) {
+                // console.log(dataSrv.id[$attrs.id])
+            }
+        }
+
+    }])
+</script>
+</html>

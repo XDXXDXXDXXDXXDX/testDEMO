@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input>
+</body>
+<script>
+    var matchString=[
+        '13231',
+        'www.ajfkljal.',
+        'www.ajfkljal.com',
+        'www.ajfkljal.com ',
+        'www.ajfkljal.com/',
+        'www.ajfkljal.com/ ',
+        'www.ajfkljal.com/ sfafa',
+        'www.ajfkljal.com/.',
+        'www.ajfkljal.as//',
+        'https://www.jsdaxue.com',
+        'https://www.jsdaxue.com/',
+        'https://www.jsdaxue.com//',
+        'https://www.jsdaxue.com/index.html',
+        'http://www.jsdaxue.com./ index.html',
+
+    ]
+
+    function CheckUrl1(str) {
+        var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        var regex = new RegExp(expression);
+        if (!regex.test(str)) {
+            return false;
+        }
+        return true;
+    }
+
+    function checkUrl2(urlString){
+        if(urlString!=""){
+            var re = new RegExp("^(https)://", "i");
+            if(!re.test(urlString)){
+                return false;
+            }
+            return true;
+        }
+    }
+
+    function log(CheckUrl) {
+        console.log("|||||||||||||----")
+        for(var i=0;i<matchString.length;i++){
+            console.log(CheckUrl(matchString[i]));
+        }
+        console.log("--------------|||")
+    }
+
+    log(CheckUrl1)
+    log(checkUrl2);
+</script>
+</html>

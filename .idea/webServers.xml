@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="471f10fa-ad64-413c-a8af-276eab8a4fcc" name="toz" url="https://www.emtailor.com/b2bviews/backend-sdk-v3.0">
+        <fileTransfer host="118.24.169.181" port="22" rootFolder="/home/weijie/backend-sdk-v3.0" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

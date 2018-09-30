@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    body {
+        margin: 0;
+        font-family: sans-serif;
+    }
+
+    #myP {
+        background: lawngreen;
+        margin-left: 50px;
+    }
+
+    #myP > p {
+        background: yellow;
+        margin-left: 50px;
+    }
+
+    #myP > div > p {
+        background: red;
+        color: white;
+        margin-left: 100px;
+    }
+</style>
+<body>
+<div id="myP">
+    Click the text! The mouseDown() function is triggered when the mouse button is pressed down over this paragraph,
+    <p>
+        andsets the color of the text to red. The mouseUp() function is triggered when the mouse button is released,
+    </p>
+    <div>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut quaerat dolor modi et quidem repudiandae vero, recusandae laborum quae veritatis, doloribus similique accusamus quibusdam voluptate, dolore fugiat eum. Corporis, porro.
+        </p>
+    </div>
+    and sets the color of the text to green.
+</div>
+<p id="output"></p>
+</body>
+<script>
+
+    var myP = document.getElementById('myP'),
+        output = document.getElementById('output');
+
+    function mouseDown(e) {
+        var rect = e.currentTarget.getBoundingClientRect(),
+            offsetX = e.clientX - rect.left,
+            offsetY = e.clientY - rect.top;
+        output.textContent = "Mouse-X: " + offsetX + ", Mouse-Y: " +  offsetY;
+        console.log("Mouse-X: " + offsetX, "Mouse-Y: " + offsetY);
+    }
+
+    myP.addEventListener('mousedown', mouseDown, false);
+</script>
+</html>

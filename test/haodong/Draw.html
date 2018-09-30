@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+
+    .adjust-button-group img{
+        max-width: 20px;
+        max-height: 20px;
+    }
+</style>
+<body>
+<div id="adjustView" class="adjust-view" >
+    <div class="adjust-button-group">
+        <button id="getMeasurements" onclick="getMeasurements()" ><img src="../../public/assets/imgs/plus.png"><p>获得尺寸数据</p></button>
+        <button id="retractFront" disabled="disabled"><img src="../../public/assets/imgs/retro.png"><p>正面回撤</p></button>
+        <!--<h1>F</h1><h1>S</h1>-->
+        <button id="retractSide" disabled="disabled"><img src="../../public/assets/imgs/retro.png"><p>侧面回撤</p></button>
+        <button id="showSideImg"  ><img src="../../public/assets/imgs/switch.png"><p>侧面</p></button>
+        <button id="showFrontImg" ><img src="../../public/assets/imgs/switch.png"><p>正面</p></button>
+        <button id="showTips"><img src="../../public/assets/imgs/tip.png"><p>小贴士</p></button>
+    </div>
+    <div id="canvasContainer" class="canvas-container">
+        <div id="imgfContainer" class="imgf-canvas-container" >
+            <div class="draw-content" id="imgfContent" toz-draw-imgf="imgf"></div>
+        </div>
+        <div id="imgsContainer" class="imgs-canvas-container" >
+            <div class="draw-content" id="imgsContent"toz-draw-imgs="imgs"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../../public/dep/jquery/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="../../public/dep/angular-1.6.8/angular.min.js" type="text/javascript"></script>
+<script src="../../public/js/tozDraw.js" type="text/javascript"></script>
+<script src="measure.js" type="text/javascript"></script>
+</html>

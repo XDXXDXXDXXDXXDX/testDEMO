@@ -1,0 +1,219 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>1Measure Backend</title>
+    <!--导入css文件-->
+    <link href="../public/dep/toast/css/toast.min.css" rel="stylesheet">
+    <link href="../public/css/scrollbar.min.css" rel="stylesheet" >
+    <link href="../public/css/measure.css" rel="stylesheet" >
+</head>
+<body ng-app="adjustment" ng-controller="SwitchViewCtrl">
+<!--头部导航栏开始-->
+<div class="header-container">
+    <a class="header-logo" href="/" title="易量体开放平台">
+        <img src="../public/assets/imgs/logo-white-en.png">
+    </a>
+    <div class="switch-langue">
+        <a id="cnMeasureUrl" href="#"><span>中文</span></a>
+        <a id="jpMeasureUrl" href="#"><span>日本語</span></a>
+    </div>
+    <div class="header-nav-bar-container">
+        <ul class="header-nav-bar-content">
+            <li>
+                <a href="https://www.tozmart.com"><span>Home</span></a>
+            </li>
+            <li id="headerMeasure" class="nav-bar-select" >
+                <a href="#"><span id="Measure">Measure</span></a>
+            </li>
+            <li  id="headerTutorial">
+                <a href="#"><span id="Tutorial">Tutorial</span></a>
+            </li>
+            <li  id="accountContainer" class="toz-header-drop-down" >
+                <div class="header-account ">
+                    <a href="#"><span>Account</span></a>
+                </div>
+                <ul class="toz-header-drop-down-content">
+                    <li id="Account"></li>
+                    <li id="Logout"><span>Logout</span></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!--左侧栏导航 开始-->
+<div class="catalog-container"  >
+    <div class="sidebar-nav">
+        <ul class="treeth">
+            <li class="toz-drop-down">
+                <img src="../public/assets/imgs/search.png">
+                <span>Search</span>
+                <ul class="toz-drop-down-content">
+                    <div class="search-container">
+                        <!--搜索中的id筛选ng-controller="SearchCtrl"-->
+                        <div class="search-item">
+                            <span>User ID:</span>
+                            <input id="searchId">
+                        </div>
+                        <!--搜索中时间筛选-->
+                        <div class="search-item" >
+                            <span>Time:</span>
+                            <div class="set-on-line">
+                                <input id="startTime" type="date"  max="2050-12-31">
+                                <span>to</span>
+                                <input id="endTime" type="date" max="2050-12-31">
+                            </div>
+                        </div>
+                        <!-- 下拉框 -->
+                        <div class="search-item">
+                            <span>Status:</span></br>
+                            <div class="set-on-line">
+                                <input type='radio'name="selectedStatus" value="-1" id= 'switch' checked="checked">
+                                <label for='switch'>All</label>
+
+                                <input type='radio' name="selectedStatus" value="0" id= 'switch1'>
+                                <label for='switch1'>New</label>
+
+                                <input type='radio' name="selectedStatus" value="1" id= 'switch2'>
+                                <label for='switch2'>Confirmed</span></label>
+                                <!--搜索-->
+                                <div class="submit-button">
+                                    <input id="searchButton">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            </li>
+            <li class="toz-drop-down">
+                <img src="../public/assets/imgs/sort.png">
+                <span>Sorting</span>
+                <ul class="toz-drop-down-content">
+                    <li id="timeAscending"><span>Time Ascending</span></li>
+                    <li id="timeDescending"><span>Time Descending</span></li>
+                </ul>
+            </li>
+            <li class="toz-drop-down">
+                <img src="../public/assets/imgs/export.png">
+                <span>Export</span>
+                <ul class="toz-drop-down-content">
+                    <li><span>Export Selected</span></li>
+                    <li><span>Export All</span></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!--目录列表 开始-->
+    <div class="catalog-content">
+        <ol class="cus-list"></ol>
+    </div>
+    <div id="pageToolbar"></div>
+</div>
+
+<!--右侧内容界面-->
+<div  class="main-container" >
+    <div id="adjustShowView" class="adjust-with-show-view">
+        <div class="adjust-view" id="adjustView">
+            <div class="adjust-button-group">
+                <button id="getMeasurements" onclick="getMeasurements()" ><img src="../public/assets/imgs/plus.png"><p>Get Measurements</p></button>
+                <button id="retractFront" disabled="disabled" class="front-img-button"><img src="../public/assets/imgs/retro.png"><p>Retract Front</p></button>
+                <button id="retractSide" disabled="disabled" class="side-img-button" ><img src="../public/assets/imgs/retro.png"><p>Retract Side</p></button>
+                <button id="retractBack" disabled="disabled" class="back-img-button"><img src="../public/assets/imgs/retro.png"><p>Retract Back</p></button>
+                <button id="showSideImg"  class="front-img-button" ><img src="../public/assets/imgs/switch.png"><h1>S</h1><p>Side</p></button>
+                <button id="showFrontImg" class="side-img-button" ><img src="../public/assets/imgs/switch.png"><h1>F</h1><p>Front</p></button>
+                <button id="showBackImg" class="side-img-button"  ><img src="../public/assets/imgs/switch.png"><h1>B</h1><p>Back</p></button>
+                <button id="back2SideImg" class="back-img-button" ><img src="../public/assets/imgs/switch.png"><h1>S</h1><p>Side</p></button>
+                <button id="showTips"><img src="../public/assets/imgs/tip.png"><p>Show Tips</p></button>
+            </div>
+            <div id="canvasContainer" class="content-canvas">
+                <div id="imgfContainer" class="img-container" >
+                    <div id="imgfContent" toz-draw-imgf="imgf" retract="#retractFront" class="draw-content" ></div>
+                </div>
+                <div id="imgsContainer" class="img-container" >
+                    <div id="imgsContent" toz-draw-imgs="imgs" retract="#retractSide" class="draw-content" ></div>
+                </div>
+                <div id="imgbContainer" class="img-container" >
+                    <div id="imgbContent" toz-draw-imgb="imgb" retract="#retractBack" class="draw-content" ></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="show-view" id="showView">
+            <div class="content-show">
+                <div class="table-sytle">
+                    <div class="fir-table">
+                        <div class="title">
+                            <table class="table2excel">
+                                <tbody class="table-color">
+                                <tr>
+                                    <th class="table-title-Part">Part</th>
+                                    <th >Name</th>
+                                    <th class="table-size-val">
+                                        Size
+                                        <div class="switch">
+                                            <div class="btn_fath clearfix on" onclick="toogle(this)">
+                                                <div class="move" data-state="on"></div>
+                                                <div class="btnSwitch btn1" >CM</div>
+                                                <div class="btnSwitch btn2 ">IN</div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="content">
+                            <table id="firBodySizeList"></table>
+                        </div>
+                    </div>
+
+                    <div class="sce-table">
+                        <div class="title">
+                            <table class="table2excel">
+                                <tbody class="table-color">
+                                <tr>
+                                    <th class="table-title-Part">Part</th>
+                                    <th >Name</th>
+                                    <th class="table-size-val">
+                                        Size
+                                        <div class="switch">
+                                            <div class="btn_fath clearfix on" onclick="toogle(this)">
+                                                <div class="move" data-state="on"></div>
+                                                <div class="btnSwitch btn1" >CM</div>
+                                                <div class="btnSwitch btn2 ">IN</div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="content">
+                            <table id="secBodySizeList"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="size-list-button-container">
+                <button id="toExcelButton">Export Excel</button>
+                <button id="submitSizesList">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!--导入第三方库-->
+<script src="../public/dep/jquery/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="../public/dep/malihu-custom-scrollbar-plugin-master/js/jquery.mCustomScrollbar.concat.min.js" type="text/javascript"></script>
+<script src="../public/dep/angular-1.6.8/angular.min.js" type="text/javascript"></script>
+<script src="../public/dep/toast/js/toast.min.js" type="text/javascript"></script>
+<script src="../public/dep/json2excel/JsonExportExcel.min.js" type="text/javascript"></script>
+<!--导入js文件-->
+<script src="../public/js/dataTable.js" type="text/javascript"></script>
+<script src="../public/js/tozDraw.js" type="text/javascript"></script>
+<script src="../public/js/common.js" type="text/javascript"></script>
+<script src="../public/js/measure.js" type="text/javascript"></script>
+<script src="../public/js/paging.min.js" type="text/javascript"></script>
+</html>
