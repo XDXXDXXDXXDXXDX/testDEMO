@@ -7,28 +7,14 @@ var xOriData = {
     password : "",
     lastLoginTime : "",
     corpApi : "",
-    httpBasicAuth : ""
+    httpBasicAuth : "",
+    phone : ["country","number"]
 };
 
 //测试用途
 // var xStorage=window.localStorage;
 //写入password字段
 // xStorage.pass=1;
-
-/**
- * 拉取初始数据
- */
-function oriData() {
-    $(".input-corpName").val(xOriData.corpName);//名称
-    $(".input-email").val(xOriData.email);//邮箱
-    $(".input-domain").val(xOriData.corpApi);//corpApi
-    $("input-http").val(xOriData.httpBasicAuth);//httpBasicAuth
-
-    let date = new Date();
-    date.setTime(xOriData.lastLoginTime);
-    $('.last-login-time').html(date); //最后登录时间
-}
-
 
 /**
  * 登陆一下
@@ -75,10 +61,12 @@ function oriData() {
                         url: SDKAPI['getlimit'],
                         data: {"accessToken":xOriData.password},
                         success:function (res) {
-                            // console.log(res);
+                            console.log(res);
                             xOriData.email = res.data.data.email;
                             xOriData.corpApi = res.data.data.corpApi?res.data.data.corpApi.replace("https://",""):"https://";
                             xOriData.httpBasicAuth = res.data.data.httpBasicAuth?res.data.data.httpBasicAuth:"";
+                            xOriData.phone[0] = res.data.data.countryCode;
+                            xOriData.phone[1] = res.data.data.phoneNum;
                             profileControl();//个人信息控制器
                             passwordControl();//密码控制器
                             domainControl();//domain控制器
@@ -95,6 +83,23 @@ function oriData() {
 })();
 
 /**
+ * 拉取初始数据
+ */
+function oriData() {
+    $(".input-corpName").val(xOriData.corpName);//名称
+    $(".input-email").val(xOriData.email);//邮箱
+    $(".input-domain").val(xOriData.corpApi);//corpApi
+    $(".input-http").val(xOriData.httpBasicAuth);//httpBasicAuth
+    $(".phone-location").val(xOriData.phone[0]);//手机地区号
+    $(".phone-number").val(xOriData.phone[1]);//手机号码
+
+    let date = new Date();
+    date.setTime(xOriData.lastLoginTime);
+    $('.last-login-time').html(date); //最后登录时间
+}
+
+
+/**
  * 个人资料页面总操作
  */
 function profileControl() {
@@ -107,7 +112,7 @@ function profileControl() {
 /*手机相关*/
 //更改手机相关操作
 function phoneFun() {
-    let oriPhone = [123, 13288888888];
+    let oriPhone = [xOriData.phone[0], xOriData.phone[1]];
     let phone1 = $(".phone-location")[0]; //要验证值的手机地区
     let phone2 = $(".phone-number")[0]; //要验证值的手机号码
     //绑定键盘事件

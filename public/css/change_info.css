@@ -9,15 +9,14 @@
     /* border: 2px solid #3c8cbb; */
     padding: 100px 0;
     margin: 0 auto;
-    display: none;
+    /* display: none; */
 }
 
 .x-change input {
-    width: 630px;
     border-radius: 2px;
     border: 2px solid #f3f3f3;
     outline: none;
-    width: 470px;
+    width: 300px;
     height: 28px;
     text-indent: 0.5em;
     box-sizing: border-box;
@@ -90,18 +89,19 @@
     color: #d3d3d3;
 }
 
-/* 个人资料界面css */
-.ul-account {
+/* 用于调整使输入框部分居中 */
+.ul-account, .ul-password, .ul-domain {
     margin-top: 20px;
-    margin-left: 16px;
+    margin-left: 56px;
 }
 
+/* 个人资料界面css */
 .profile .phone-location {
-    width: 38px;
+    width: 50px;
 }
 
 .profile .phone-number {
-    width: 124px;
+    width: 244px;
 }
 
 .input-tips-img {
@@ -119,17 +119,8 @@
     color: #3c8cbb;
 }
 
-/* 修改密码界面css */
-.ul-password {
-    margin-top: 20px;
-    margin-left: 16px;
-}
-
 /* 修改domain界面css */
-.ul-domain {
-    margin-top: 20px;
-    margin-left: 10px;
-}
+
 
 /* 测试用登陆和内敛框架css */
 #xframe{

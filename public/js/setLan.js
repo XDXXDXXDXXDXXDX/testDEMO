@@ -1,5 +1,5 @@
 var xSetLan = {
-    lan : "cn",//语言类型，默认英语
+    lan : "en",//语言类型，默认英语
 };
 
 var lanContent = {
